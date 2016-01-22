@@ -1,0 +1,12 @@
+package torrent;
+
+message Torrent {
+    required string owner = 1;
+    required string fname = 2;
+    required string root = 3;
+}
+
+message UploadRequest {
+    required Torrent torrent = 1;
+    string signature = 2;
+}
