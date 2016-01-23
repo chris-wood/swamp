@@ -54,25 +54,25 @@ class Tracker(object):
             return self.fetch(params)
 
     def upload(self, fpayload):
-        info = json.loads(fpayload)
-        fname = info["fname"]
-        print "Fetching %s" % (fname)
+        request = UploadRequest()
+        request.ParseFromString(fpayload)
 
-        # TODO: replace contents ({}) with a tracker instance that serializes to/from JSON
+        # TODO: verify the signature if needed
+
+        torrent = request.torrent
+        fname = torrent.fname
+
         if not self.repo.contains(fname):
-            contents = {}
-            contents["owner"] = info["owner"]
-            contents["seeders"] = []
-            contents["root"] = info["root"]
-            self.repo.add(fname, json.dumps(contents))
+            self.repo.add(fname, torrent.SerializeToString())
+            ack = Ack()
+            ack.code = torrent_pb2.Ack.Ok
+            ack.message = "OK"
+            return ack.SerializeToString()
         else:
-            rawbytes = self.repo.get(fname)
-            print "LOADED %s" % (str(rawbytes))
-            contents = json.loads(rawbytes)
-            contents["seeders"].append(info["owner"])
-            self.repo.append(fname, json.dumps(contents))
-
-        return json.dumps({"status": "OK"})
+            ack = Ack()
+            ack.code = torrent_pb2.Ack.Error
+            ack.message = "Error: file %s already exists in the tracker" % (fname)
+            return ack.SerializeToString()
 
     def fetch(self, params):
         fname = "/".join(params)
@@ -85,6 +85,9 @@ class Tracker(object):
             print fname
             contents = json.loads(self.repo.get(fname))
             print contents
+
+            # TODO: caw
+
             return json.dumps({"owner": contents["owner"], "seeders": contents["seeders"], "root": contents["root"]})
 
 def main(lciPrefix = "lci:/tracker"):

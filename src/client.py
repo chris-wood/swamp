@@ -1,20 +1,10 @@
 #!/usr/bin/python
 
-# -*- mode: python; tab-width: 4; indent-tabs-mode: nil -*-
-
-# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
-# Copyright 2015 Palo Alto Research Center, Inc. (PARC), a Xerox company.  All Rights Reserved.
-# The content of this file, whole or in part, is subject to licensing terms.
-# If distributing this software, include this License Header Notice in each
-# file and provide the accompanying LICENSE file.
-
-# @author Alan Walendowski, System Sciences Laboratory, PARC
-# @copyright 2015 Palo Alto Research Center, Inc. (PARC), A Xerox Company. All Rights Reserved.
-
 import sys
+from torrent_pb2 import *
 from trees import *
 from repo import *
-sys.path.append('/Users/cwood/Projects/PARC/Review/build/lib/python2.7/site-packages')
+sys.path.append('/Users/cwood/Projects/PARC/Repo/build/lib/python2.7/site-packages')
 
 import os, time, tempfile, json, getopt, torrent
 from CCNx import *
@@ -31,21 +21,19 @@ def open_portal():
     portal = factory.create_portal()
     return portal
 
-def add_to_repo(repo, node):
-    # THE HASH IS THE NAME!
+def add_to_repo(repo, node): # THE HASH IS THE NAME!
     repo.add(node.hash(), node.toJSON())
-    if "Leaf" == node.type():
-        pass
-    else: # "Manifest"
+    if "Manifest" == node.type():
         for child in node.nodes:
             add_to_repo(repo, child)
+
 
 def usage(argv):
     # TODO: fix this.
     print "Usage: %s [-h ] [[-l | -lci] lci:/name/to/send/to] <payload string>" % argv[0]
 
 def parse_args(argv):
-    namePrefix = None
+    name_prefix = None
     repoPrefix = None
     storageLocation = None
     try:
@@ -61,97 +49,77 @@ def parse_args(argv):
             global _debug
             _debug = 1
         elif opt in ("-l", "--lci"):
-            namePrefix = arg
-            print "Will send to name [ %s ]" % namePrefix
+            name_prefix = arg
+            print "Will send to name [ %s ]" % name_prefix
 
-    return (namePrefix, " ".join(args)) # listenPrefix, Everything left over
+    return (name_prefix, " ".join(args)) # listenPrefix, Everything left over
 
-if __name__ == "__main__":
-    namePrefix = "lci:/tracker"
-    myStoragePrefix = "lci:/chris"
-
-    repo = FileRepo(myStoragePrefix, "repo")
-
+def load_data(fname, repo):
     data = None
-    dataname = sys.argv[1]
-    with open(dataname, "rb") as fh:
+    with open(fname, "rb") as fh:
         data = fh.read()
 
     chunker = Chunker(data)
     root = build_skewed_tree(chunker)
 
+    return root
+
+def upload_data(client, fname, repo):
+    root = load_data(fname, repo)
+
     if root:
         rootNode = root.toJSON()
-        print rootNode, dataname
-        if not repo.contains(dataname):
+        print rootNode, fname
+        if not repo.contains(fname):
             print >> sys.stderr, "The file was not in the repo. We're adding it now..."
             add_to_repo(repo, root)
-            repo.add(dataname, rootNode)
+            repo.add(fname, rootNode)
 
-        uploadRequest = json.dumps({"fname": dataname, "owner": myStoragePrefix, "root": rootNode})
+        torrent = UploadRequest()
+        torrent.torrent.owner = storage_prefix # TODO: rename storage_prefix to something else
+        torrent.torrent.seeders.append(storage_prefix)
+        torrent.torrent.fname = fname
+        torrent.torrent.root = rootNode
+        # torrent.signature = XXX
 
-        portal = open_portal()
+        uploadRequest = torrent.SerializeToString()
+        response_data = client.get(name_prefix + "/upload", uploadRequest)
 
-        ### 1. Upload the root manifest.
-        interest = Interest(Name(namePrefix + "/upload"))
-        interest.setPayload(uploadRequest)
-        portal.send(interest)
+        response = Ack()
+        response.ParseFromString(response_data)
 
-        print interest.name
+        print "Upload[%d]: %s" % (response.code, response.message)
 
-        received = False
-        while not received:
-            message = portal.receive()
-            print message
-            if isinstance(message, Interest):
-                print "Received Interest: ", str(message)
-            elif isinstance(message, ContentObject):
-                print "Received content message: ", str(message)
-                payload = message.getPayload()
-                if payload:
-                    print "Data: ", payload
-                received = True
+def fetch_data(client, name_prefix, name):
+    response = client.get(name_prefix + "/fetch/" + name)
+    data_torrent = Torrent()
+    if data_torrent.ParseFromString(payload):
+        print "FETCH THE MANIFEST", data_torrent
 
-        ### 2. Fetch the root manifest for the thing you want
-        interest = Interest(Name(namePrefix + "/fetch/big.bin"))
-        portal.send(interest)
+def run(name_prefix, storage_prefix):
+    client = CCNxClient()
+    repo = FileRepo(storage_prefix, "repo")
 
-        message = portal.receive()
-        if isinstance(message, Interest):
-            print "Received Interest: ", str(message)
-        elif isinstance(message, ContentObject):
-            print "Received content message: ", str(message)
+    cmd = raw_input("> ").strip()
+    splits = cmd.split(" ")
 
-        payload = message.getPayload()
-        if payload:
-            print "Data", payload
+    while splits[0] != "quit":
+        if splits[0] == "put":
+            upload_data(client, splits[1], repo)
+        if splits[0] == "fetch":
+            fetch_data(client, name_prefix, splits[1])
+        else:
+            print "Unsupported command."
 
-            tracker = json.loads(payload)
-            prefix = tracker["owner"]
-            manifest = json.loads(tracker["root"])
+        cmd = raw_input("> ").strip()
+        splits = cmd.split(" ")
 
-            # Recursively fetch with the root manifest.
-            chunks = []
-            digests = manifest["contents"]
-            while len(digests) > 0:
-                digest = digests[0]
-                digests = digests[1:]
+if __name__ == "__main__":
+    args = parse_args(sys.argv[1:])
 
-                print "I WOULD FETCH FOR %s" % (prefix)
-                break
+    # TODO: handle the arguments here.
 
-#                interest = Interest(Name(prefix))
-#                interest.setContentObjectHashRestriction(digest)
-#
-#                portal.send(interest)
-#                message = portal.receive()
-#                payload = message.getPayload()
-#
-#                try:
-#                    newmanifest = json.loads(payload)
-#                    digests.append(newmanifest["contents"])
-#                except:
-#                    chunks.append(payload)
+    name_prefix = "lci:/tracker"
+    storage_prefix = "lci:/chris"
 
-            print "!!DONE TRANSFERRING THE FILE!!"
-            print chunks
+    run(name_prefix, storage_prefix)

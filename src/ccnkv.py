@@ -1,19 +1,8 @@
 #!/usr/bin/python
 
-# -*- mode: python; tab-width: 4; indent-tabs-mode: nil -*-
-
-# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
-# Copyright 2015 Palo Alto Research Center, Inc. (PARC), a Xerox company.  All Rights Reserved.
-# The content of this file, whole or in part, is subject to licensing terms.
-# If distributing this software, include this License Header Notice in each
-# file and provide the accompanying LICENSE file.
-
-# @author Christopher A. Wood, System Sciences Laboratory, PARC
-# @copyright 2015 Palo Alto Research Center, Inc. (PARC), A Xerox Company. All Rights Reserved.
-
 import sys, tempfile, time, json, random, errno, os, threading
 
-sys.path.append('/Users/cwood/Projects/PARC/Review/build/lib/python2.7/site-packages')
+sys.path.append('/Users/cwood/Projects/PARC/Repo/build/lib/python2.7/site-packages')
 from CCNx import *
 
 class CCNxClient(object):

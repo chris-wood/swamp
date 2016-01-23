@@ -2,8 +2,8 @@ import sys
 import os
 import threading
 
+from ccnkv import *
 from CCNx import *
-from ccnxkv import *
 
 def setup_identity():
     global IDENTITY_FILE
@@ -41,14 +41,14 @@ class FileRepo(object):
         self.load()
 
     def run(self):
-        self.client.listen()
+        self.client.listen(self.prefix)
         while self.running:
             name, data = self.client.receive()
             fname = name.replace(self.name, "")
 
             data = None
-            if self.contains(name):
-                data = json.dumps({"status": "OK", "data" : self.get(name)})
+            if self.contains(fname):
+                data = json.dumps({"status": "OK", "data" : self.get(fname)})
             else:
                 data = json.dumps({"status": "ERROR-DNE"})
             self.client.reply(name, data)

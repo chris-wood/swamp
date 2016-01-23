@@ -4,9 +4,22 @@ message Torrent {
     required string owner = 1;
     required string fname = 2;
     required string root = 3;
+
+    // multiple seeders are possible
+    repeated string seeders = 4;
 }
 
 message UploadRequest {
     required Torrent torrent = 1;
-    string signature = 2;
+    optional string signature = 2;
+}
+
+message Ack {
+    enum AckCode {
+       Ok = 0;
+       Error = 1;
+    }
+
+    required AckCode code = 2 [default = Ok];
+    required string message = 3;
 }

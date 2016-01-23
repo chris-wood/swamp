@@ -1,0 +1,25 @@
+>>> from torrent_pb2 import *
+>>> t = Torrent(owner = "owner", fname = "fname", root = "root")
+>>> t.owner
+u'owner'
+>>> t.SerializeToString()
+'\n\x05owner\x12\x05fname\x1a\x04root'
+>>> ParseFromString(t.SerializeToString())
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+NameError: name 'ParseFromString' is not defined
+>>> Token.ParseFromString(t.SerializeToString())
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+NameError: name 'Token' is not defined
+>>> Torrent.ParseFromString(t.SerializeToString())
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: unbound method ParseFromString() must be called with Torrent instance as first argument (got str instance instead)
+>>> t.ParseFromString(t.SerializeToString())
+>>> t
+<torrent_pb2.Torrent object at 0x1028b4cf8>
+>>> print t
+owner: "owner"
+fname: "fname"
+root: "root"
