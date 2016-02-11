@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import sys
-from torrent_pb2 import *
+from swamp_pb2 import *
 from trees import *
 from repo import *
 sys.path.append('/Users/cwood/Projects/PARC/Repo/build/lib/python2.7/site-packages')

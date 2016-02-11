@@ -12,11 +12,11 @@
 # @copyright 2015 Palo Alto Research Center, Inc. (PARC), A Xerox Company. All Rights Reserved.
 
 import sys, tempfile, getopt, time, json, random, sqlite3
-from repo import *
 
+from repo import *
 from CCNx import *
 
-def nowInMillis():
+def now_in_millis():
     return int(round(time.time() * 1000))
 
 def setup_identity():

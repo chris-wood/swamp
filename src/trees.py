@@ -124,7 +124,7 @@ def build_skewed_tree(chunker):
             node = Leaf("/leaf/%d" % (index))
             index += 1
             node.add_data(chunk)
-            
+
     if root == None:
         root = Node("/node/0")
         root.insert_node(node)
