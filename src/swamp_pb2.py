@@ -18,7 +18,7 @@ _sym_db = _symbol_database.Default()
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='swamp.proto',
   package='swamp',
-  serialized_pb=_b('\n\x0bswamp.proto\x12\x05swamp\"F\n\x07Torrent\x12\r\n\x05owner\x18\x01 \x02(\t\x12\r\n\x05\x66name\x18\x02 \x02(\t\x12\x0c\n\x04root\x18\x03 \x02(\t\x12\x0f\n\x07seeders\x18\x04 \x03(\t\"C\n\rUploadRequest\x12\x1f\n\x07torrent\x18\x01 \x02(\x0b\x32\x0e.swamp.Torrent\x12\x11\n\tsignature\x18\x02 \x01(\t\"/\n\x0c\x46\x65tchRequest\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x11\n\tsignature\x18\x02 \x01(\t\"0\n\rFetchResponse\x12\x1f\n\x07torrent\x18\x01 \x02(\x0b\x32\x0e.swamp.Torrent\"Z\n\x03\x41\x63k\x12$\n\x04\x63ode\x18\x02 \x02(\x0e\x32\x12.swamp.Ack.AckCode:\x02Ok\x12\x0f\n\x07message\x18\x03 \x02(\t\"\x1c\n\x07\x41\x63kCode\x12\x06\n\x02Ok\x10\x00\x12\t\n\x05\x45rror\x10\x01')
+  serialized_pb=_b('\n\x0bswamp.proto\x12\x05swamp\"+\n\x0bPullRequest\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x0e\n\x06\x63hunks\x18\x02 \x02(\x03\"F\n\x07Torrent\x12\r\n\x05owner\x18\x01 \x02(\t\x12\r\n\x05\x66name\x18\x02 \x02(\t\x12\x0c\n\x04root\x18\x03 \x02(\t\x12\x0f\n\x07seeders\x18\x04 \x03(\t\"C\n\rUploadRequest\x12\x1f\n\x07torrent\x18\x01 \x02(\x0b\x32\x0e.swamp.Torrent\x12\x11\n\tsignature\x18\x02 \x01(\t\"Z\n\x03\x41\x63k\x12$\n\x04\x63ode\x18\x02 \x02(\x0e\x32\x12.swamp.Ack.AckCode:\x02Ok\x12\x0f\n\x07message\x18\x03 \x02(\t\"\x1c\n\x07\x41\x63kCode\x12\x06\n\x02Ok\x10\x00\x12\t\n\x05\x45rror\x10\x01')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -41,10 +41,47 @@ _ACK_ACKCODE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=324,
-  serialized_end=352,
+  serialized_start=270,
+  serialized_end=298,
 )
 _sym_db.RegisterEnumDescriptor(_ACK_ACKCODE)
+
+
+_PULLREQUEST = _descriptor.Descriptor(
+  name='PullRequest',
+  full_name='swamp.PullRequest',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='name', full_name='swamp.PullRequest.name', index=0,
+      number=1, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='chunks', full_name='swamp.PullRequest.chunks', index=1,
+      number=2, type=3, cpp_type=2, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=22,
+  serialized_end=65,
+)
 
 
 _TORRENT = _descriptor.Descriptor(
@@ -93,8 +130,8 @@ _TORRENT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=22,
-  serialized_end=92,
+  serialized_start=67,
+  serialized_end=137,
 )
 
 
@@ -130,75 +167,8 @@ _UPLOADREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=94,
-  serialized_end=161,
-)
-
-
-_FETCHREQUEST = _descriptor.Descriptor(
-  name='FetchRequest',
-  full_name='swamp.FetchRequest',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='name', full_name='swamp.FetchRequest.name', index=0,
-      number=1, type=9, cpp_type=9, label=2,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    _descriptor.FieldDescriptor(
-      name='signature', full_name='swamp.FetchRequest.signature', index=1,
-      number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  options=None,
-  is_extendable=False,
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=163,
-  serialized_end=210,
-)
-
-
-_FETCHRESPONSE = _descriptor.Descriptor(
-  name='FetchResponse',
-  full_name='swamp.FetchResponse',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='torrent', full_name='swamp.FetchResponse.torrent', index=0,
-      number=1, type=11, cpp_type=10, label=2,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  options=None,
-  is_extendable=False,
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=212,
-  serialized_end=260,
+  serialized_start=139,
+  serialized_end=206,
 )
 
 
@@ -235,19 +205,24 @@ _ACK = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=262,
-  serialized_end=352,
+  serialized_start=208,
+  serialized_end=298,
 )
 
 _UPLOADREQUEST.fields_by_name['torrent'].message_type = _TORRENT
-_FETCHRESPONSE.fields_by_name['torrent'].message_type = _TORRENT
 _ACK.fields_by_name['code'].enum_type = _ACK_ACKCODE
 _ACK_ACKCODE.containing_type = _ACK
+DESCRIPTOR.message_types_by_name['PullRequest'] = _PULLREQUEST
 DESCRIPTOR.message_types_by_name['Torrent'] = _TORRENT
 DESCRIPTOR.message_types_by_name['UploadRequest'] = _UPLOADREQUEST
-DESCRIPTOR.message_types_by_name['FetchRequest'] = _FETCHREQUEST
-DESCRIPTOR.message_types_by_name['FetchResponse'] = _FETCHRESPONSE
 DESCRIPTOR.message_types_by_name['Ack'] = _ACK
+
+PullRequest = _reflection.GeneratedProtocolMessageType('PullRequest', (_message.Message,), dict(
+  DESCRIPTOR = _PULLREQUEST,
+  __module__ = 'swamp_pb2'
+  # @@protoc_insertion_point(class_scope:swamp.PullRequest)
+  ))
+_sym_db.RegisterMessage(PullRequest)
 
 Torrent = _reflection.GeneratedProtocolMessageType('Torrent', (_message.Message,), dict(
   DESCRIPTOR = _TORRENT,
@@ -262,20 +237,6 @@ UploadRequest = _reflection.GeneratedProtocolMessageType('UploadRequest', (_mess
   # @@protoc_insertion_point(class_scope:swamp.UploadRequest)
   ))
 _sym_db.RegisterMessage(UploadRequest)
-
-FetchRequest = _reflection.GeneratedProtocolMessageType('FetchRequest', (_message.Message,), dict(
-  DESCRIPTOR = _FETCHREQUEST,
-  __module__ = 'swamp_pb2'
-  # @@protoc_insertion_point(class_scope:swamp.FetchRequest)
-  ))
-_sym_db.RegisterMessage(FetchRequest)
-
-FetchResponse = _reflection.GeneratedProtocolMessageType('FetchResponse', (_message.Message,), dict(
-  DESCRIPTOR = _FETCHRESPONSE,
-  __module__ = 'swamp_pb2'
-  # @@protoc_insertion_point(class_scope:swamp.FetchResponse)
-  ))
-_sym_db.RegisterMessage(FetchResponse)
 
 Ack = _reflection.GeneratedProtocolMessageType('Ack', (_message.Message,), dict(
   DESCRIPTOR = _ACK,

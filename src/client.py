@@ -1,12 +1,12 @@
 #!/usr/bin/python
 
-import sys
-from swamp_pb2 import *
+import sys, os, time, tempfile, json, getopt
+
 from trees import *
 from repo import *
-sys.path.append('/Users/cwood/Projects/PARC/Repo/build/lib/python2.7/site-packages')
+from swamp_pb2 import *
 
-import os, time, tempfile, json, getopt, torrent
+sys.path.append('/Users/cwood/Projects/PARC/Repo/build/lib/python2.7/site-packages')
 from CCNx import *
 
 def setup_identity():
@@ -26,7 +26,6 @@ def add_to_repo(repo, node): # THE HASH IS THE NAME!
     if "Manifest" == node.type():
         for child in node.nodes:
             add_to_repo(repo, child)
-
 
 def usage(argv):
     # TODO: fix this.
@@ -90,11 +89,21 @@ def upload_data(client, fname, repo):
 
         print "Upload[%d]: %s" % (response.code, response.message)
 
+def retrieve_data_from_manifest(client, name, root, acc):
+    for digest in root["contents"]:
+        node = client.get_by_identifier(name, digest)
+        try:
+            node_json = json.loads(node)
+            if node_json["type"] == "Manifest":
+                retrieve_data_from_manifest(client, name, node_json, acc)
+        except:
+            acc.append(node) # raw data!
+
 def fetch_data(client, name_prefix, name):
     response = client.get(name_prefix + "/fetch/" + name)
     data_torrent = Torrent()
-    if data_torrent.ParseFromString(payload):
-        print "FETCH THE MANIFEST", data_torrent
+    data_torrent.ParseFromString(response)
+    print "FETCH THE MANIFEST", data_torrent
 
 def run(name_prefix, storage_prefix):
     client = CCNxClient()

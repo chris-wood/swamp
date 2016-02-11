@@ -1,20 +1,11 @@
 #!/usr/bin/python
 
-# -*- mode: python; tab-width: 4; indent-tabs-mode: nil -*-
-
-# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
-# Copyright 2015 Palo Alto Research Center, Inc. (PARC), a Xerox company.  All Rights Reserved.
-# The content of this file, whole or in part, is subject to licensing terms.
-# If distributing this software, include this License Header Notice in each
-# file and provide the accompanying LICENSE file.
-
-# @author Cool Guys, System Sciences Laboratory, PARC
-# @copyright 2015 Palo Alto Research Center, Inc. (PARC), A Xerox Company. All Rights Reserved.
-
 import sys, tempfile, getopt, time, json, random, sqlite3
 
 from repo import *
 from CCNx import *
+
+from swamp_pb2 import *
 
 def now_in_millis():
     return int(round(time.time() * 1000))
@@ -57,7 +48,7 @@ class Tracker(object):
         request = UploadRequest()
         request.ParseFromString(fpayload)
 
-        # TODO: verify the signature if needed
+        # TODO: verify the signature if needed 
 
         torrent = request.torrent
         fname = torrent.fname
@@ -65,30 +56,24 @@ class Tracker(object):
         if not self.repo.contains(fname):
             self.repo.add(fname, torrent.SerializeToString())
             ack = Ack()
-            ack.code = torrent_pb2.Ack.Ok
+            ack.code = Ack.Ok
             ack.message = "OK"
             return ack.SerializeToString()
         else:
             ack = Ack()
-            ack.code = torrent_pb2.Ack.Error
+            ack.code = Ack.Error
             ack.message = "Error: file %s already exists in the tracker" % (fname)
             return ack.SerializeToString()
 
-    def fetch(self, params):
-        fname = "/".join(params)
-        print >> sys.stderr, "seeking %s" % (fname)
-        if not self.repo.contains(fname):
-            print self.repo
-            return json.dumps({"status": "File does not exist"})
+    def fetch(self, name_components):
+        name = "/".join(name_components)
+        if not self.repo.contains(name):
+            ack = Ack()
+            ack.code = Ack.Error
+            ack.message = "File '%s' not found" % (name)
+            return ack.SerializeToString()
         else:
-            print self.repo
-            print fname
-            contents = json.loads(self.repo.get(fname))
-            print contents
-
-            # TODO: caw
-
-            return json.dumps({"owner": contents["owner"], "seeders": contents["seeders"], "root": contents["root"]})
+            return self.repo.get(name) # this is already serialized
 
 def main(lciPrefix = "lci:/tracker"):
     try:
@@ -105,7 +90,7 @@ def main(lciPrefix = "lci:/tracker"):
         while keepRunning:
             message = portal.receive()
 
-            print message.name
+            print "Tracker received %s" % (str(message.name))
 
             name = str(message.name)[len(lciPrefix):]
             nameComponents = name.split('/')

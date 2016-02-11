@@ -84,7 +84,7 @@ class Leaf(Node):
 
     # TODO: rename to serialize!
     def toJSON(self):
-        return "".join(self.data)
+        return json.dumps({"type": self.type(), "contents": "".join(self.data)}
 
 class Chunker(object):
     def __init__(self, data, chunksize = 4096):

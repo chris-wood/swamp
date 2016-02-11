@@ -4,6 +4,7 @@ import sys, tempfile, time, json, random, errno, os, threading
 
 sys.path.append('/Users/cwood/Projects/PARC/Repo/build/lib/python2.7/site-packages')
 from CCNx import *
+from swamp_pb2 import *
 
 class CCNxClient(object):
     def __init__(self, async = False):

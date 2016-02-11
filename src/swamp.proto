@@ -1,5 +1,10 @@
 package swamp;
 
+message PullRequest {
+    required string name = 1;
+    required int64 chunks = 2;
+}
+
 message Torrent {
     required string owner = 1;
     required string fname = 2;
@@ -14,14 +19,14 @@ message UploadRequest {
     optional string signature = 2;
 }
 
-message FetchRequest {
-    required string name = 1;
-    optional string signature = 2;
-}
+//message FetchRequest {
+//    required string name = 1;
+//    optional string signature = 2;
+//}
 
-message FetchResponse {
-    required Torrent torrent = 1;
-}
+//message FetchResponse {
+//    required Torrent torrent = 1;
+//}
 
 message Ack {
     enum AckCode {
