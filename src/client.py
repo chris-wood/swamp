@@ -21,7 +21,7 @@ def open_portal():
     portal = factory.create_portal()
     return portal
 
-def add_to_repo(repo, node): # THE HASH IS THE NAME!
+def add_to_repo(repo, node): # the hash is the name
     repo.add(node.hash(), node.toJSON())
     if "Manifest" == node.type():
         for child in node.nodes:
@@ -90,8 +90,10 @@ def upload_data(client, fname, repo):
         print "Upload[%d]: %s" % (response.code, response.message)
 
 def retrieve_data_from_manifest(client, name, root, acc):
-    for digest in root["contents"]:
-        node = client.get_by_identifier(name, digest)
+    for digest in eval(root["contents"]):
+        # print digest
+        print "Fetching %s %s " % (str(name), str(digest))
+        node = client.get(str(name), str(digest))
         try:
             node_json = json.loads(node)
             if node_json["type"] == "Manifest":
@@ -103,7 +105,9 @@ def fetch_data(client, name_prefix, name):
     response = client.get(name_prefix + "/fetch/" + name)
     data_torrent = Torrent()
     data_torrent.ParseFromString(response)
-    print "FETCH THE MANIFEST", data_torrent
+
+    data = []
+    retrieve_data_from_manifest(client, data_torrent.owner, json.loads(data_torrent.root), data)
 
 def run(name_prefix, storage_prefix):
     client = CCNxClient()

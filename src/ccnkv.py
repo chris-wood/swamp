@@ -28,7 +28,7 @@ class CCNxClient(object):
     def openAsyncPortal(self):
         identity = self.setupIdentity()
         factory = PortalFactory(identity)
-        portal = factory.create_portal(transport=TransportType_RTA_Message, attributes=PortalAttributes_NonBlocking)
+        portal = factory.create_portal()
         return portal
 
     def get(self, name, data = ""):
@@ -128,7 +128,7 @@ class CCNxClient(object):
     def receive_raw(self):
         request = self.portal.receive()
         if isinstance(request, Interest):
-            return request.name, request.getPayload()
+            return request
         else:
             pass
         return None, None

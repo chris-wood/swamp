@@ -25,33 +25,35 @@ class FileRepo(object):
         try:
             self.path = path
             os.makedirs(path)
-
-            self.prefix = prefix
-            self.client = CCNxClient(prefix)
-
-            self.running = True
-            self.d = threading.Thread(name='repodaemon', target=self.run)
-            self.d.setDaemon(True)
-
-            self.d.start()
         except Exception as e:
             print >> sys.stderr, "Directory %s exists" % (path)
+
+        self.prefix = prefix
+        self.client = CCNxClient(prefix)
+
+        self.running = True
+        self.d = threading.Thread(name='repodaemon', target=self.run)
+        self.d.setDaemon(True)
+
+        self.d.start()
 
         self.files = []
         self.load()
 
     def run(self):
         self.client.listen(self.prefix)
+        print "Repo listening on prefix %s" % (self.prefix)
         while self.running:
-            name, data = self.client.receive()
-            fname = name.replace(self.name, "")
+            interest = self.client.receive_raw()
 
-            data = None
+            name = str(interest.name)
+            fname = str(interest.getPayload())
+
+            data = ""
             if self.contains(fname):
-                data = json.dumps({"status": "OK", "data" : self.get(fname)})
-            else:
-                data = json.dumps({"status": "ERROR-DNE"})
-            self.client.reply(name, data)
+                data = self.get(fname)
+
+            self.client.reply(str(interest.name), data)
 
     def load(self):
         for fname in os.listdir(self.path):

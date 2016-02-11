@@ -48,7 +48,7 @@ class Tracker(object):
         request = UploadRequest()
         request.ParseFromString(fpayload)
 
-        # TODO: verify the signature if needed 
+        # TODO: verify the signature if needed
 
         torrent = request.torrent
         fname = torrent.fname
