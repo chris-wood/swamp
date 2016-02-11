@@ -1,4 +1,4 @@
-package torrent;
+package swamp;
 
 message Torrent {
     required string owner = 1;
@@ -12,6 +12,15 @@ message Torrent {
 message UploadRequest {
     required Torrent torrent = 1;
     optional string signature = 2;
+}
+
+message FetchRequest {
+    required string name = 1;
+    optional string signature = 2;
+}
+
+message FetchResponse {
+    required Torrent torrent = 1;
 }
 
 message Ack {
